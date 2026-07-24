@@ -3,43 +3,39 @@
 A production-level full-stack system that predicts opportunity-driven crimes using ML models and provides role-based dashboards with real-time insights, simulation, and safe routing.
 
 ## Architecture
-
-```
 opcrime-ai/
-├── ml/                          # Machine Learning Module
-│   ├── generate_dataset.py      # Synthetic dataset generator (30K rows, Tamil Nadu)
-│   ├── train_models.py          # ML training pipeline (XGBoost, RF, KMeans)
-│   ├── predict.py               # Prediction & explanation functions
-│   ├── safe_route.py            # Dijkstra-based safe route algorithm
-│   ├── data/                    # Generated datasets
-│   └── models/                  # Trained model files (.pkl)
-├── backend/                     # FastAPI Backend
-│   ├── app/
-│   │   ├── main.py              # App entry point
-│   │   ├── config.py            # Settings & env vars
-│   │   ├── database.py          # SQLAlchemy setup
-│   │   ├── schemas.py           # Pydantic models
-│   │   ├── models/              # SQLAlchemy ORM models
-│   │   ├── routers/             # API route handlers
-│   │   └── services/            # Business logic layer
-│   └── requirements.txt
-├── frontend/                    # React Frontend
-│   ├── public/
-│   ├── src/
-│   │   ├── components/          # Reusable UI components
-│   │   │   ├── common/          # Navbar, Sidebar, Map, Gauge, Cards
-│   │   │   └── [role]/          # Role-specific components
-│   │   ├── pages/               # Dashboard pages per role
-│   │   ├── services/            # API client & auth context
-│   │   ├── styles/              # Cinematic dark-themed CSS
-│   │   └── utils/
-│   └── package.json
-└── database/                    # Database
-    ├── schema.sql               # PostgreSQL schema
-    ├── seed.py                  # Data seeder (bulk: users + locations from dataset)
-    └── create_user.py           # Standalone utility: create individual demo users
-```
-
+├── ml/ # Machine Learning Module
+│ ├── generate_dataset.py # Synthetic dataset generator (30K rows, Tamil Nadu)
+│ ├── train_models.py # ML training pipeline (XGBoost, RF, KMeans)
+│ ├── predict.py # Prediction & explanation functions
+│ ├── safe_route.py # Dijkstra-based safe route algorithm
+│ ├── data/ # Generated datasets
+│ └── models/ # Trained model files (.pkl)
+├── backend/ # FastAPI Backend
+│ ├── app/
+│ │ ├── main.py # App entry point
+│ │ ├── config.py # Settings & env vars
+│ │ ├── database.py # SQLAlchemy setup
+│ │ ├── schemas.py # Pydantic models
+│ │ ├── models/ # SQLAlchemy ORM models
+│ │ ├── routers/ # API route handlers
+│ │ └── services/ # Business logic layer
+│ └── requirements.txt
+├── frontend/ # React Frontend
+│ ├── public/
+│ ├── src/
+│ │ ├── components/ # Reusable UI components
+│ │ │ ├── common/ # Navbar, Sidebar, Map, Gauge, Cards
+│ │ │ └── [role]/ # Role-specific components
+│ │ ├── pages/ # Dashboard pages per role
+│ │ ├── services/ # API client & auth context
+│ │ ├── styles/ # Cinematic dark-themed CSS
+│ │ └── utils/
+│ └── package.json
+└── database/ # Database
+├── schema.sql # PostgreSQL schema
+├── seed.py # Data seeder (bulk: users + locations from dataset)
+└── create_user.py # Standalone utility: create individual demo users
 ## Tech Stack
 
 | Layer | Technology |
