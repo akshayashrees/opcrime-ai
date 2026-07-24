@@ -1,0 +1,30 @@
+# --- Python / backend ---
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+env/
+.env
+*.db
+*.sqlite3
+
+# --- ML artifacts (regenerate via scripts, or use Git LFS) ---
+backend/ml/data/*.csv
+backend/ml/models/*.pkl
+
+# --- Node / frontend ---
+node_modules/
+frontend/build/
+frontend/.env
+npm-debug.log*
+
+# --- Android / Capacitor native app (kept in a separate project) ---
+android/
+*.apk
+*.keystore
+
+# --- OS / editor ---
+.DS_Store
+.vscode/
+.idea/
