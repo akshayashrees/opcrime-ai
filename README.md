@@ -41,17 +41,15 @@ python run.py
 API runs at `http://localhost:8001`.
 
 ### Database
-The ML models and dataset (`backend/ml/models/*.pkl`, `backend/ml/data/*.csv`) are **not
+The trained model files and dataset (`backend/ml/models/*.pkl`, `backend/ml/data/*.csv`) are **not
 committed to this repo** — they're either large (one model file is ~99MB, over GitHub's
 100MB limit) or regeneratable. To rebuild them locally:
 ```bash
 cd backend
 python ml/generate_dataset.py     # regenerates backend/ml/data/crime_dataset.csv
+python ml/train_models.py         # trains XGBoost regressor, RF classifier, KMeans; saves to ml/models/
 python db/seed.py                 # creates tables + seeds default users + locations
 ```
-You'll also need to (re)train the models — the training script that produced
-`xgb_regressor.pkl`, `rf_classifier.pkl`, `kmeans_hotspot.pkl`, and `preprocessor.pkl`
-isn't included here yet.
 
 ### Frontend
 ```bash
@@ -65,8 +63,13 @@ Runs at `http://localhost:3000`, proxying API calls to `http://localhost:8001`.
 - `backend/app/models.py` (SQLAlchemy models) — not yet added to this repo
 - `backend/app/routers/` (auth, predictions, map_data, citizen, police, municipal, emergency) — not yet added
 - `backend/app/services/auth_service.py` — not yet added
-- Model training script (produces the `.pkl` files) — not yet added
 - A native Android build exists via Capacitor but is maintained as a separate project and isn't included here
+
+## ML module
+- `ml/generate_dataset.py` — synthesizes the training dataset
+- `ml/train_models.py` — trains and saves the XGBoost regressor, Random Forest classifier, and KMeans hotspot model
+- `ml/predict.py` — loads trained models and exposes scoring/classification/explanation functions used by the API
+- `ml/safe_route.py` — Dijkstra-based routing over a crime-score-weighted grid, used for the "safe route" feature
 
 ## Note on demo credentials
 The login screen currently displays demo account credentials directly in the UI
