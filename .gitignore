@@ -10,8 +10,8 @@ env/
 *.sqlite3
 
 # --- ML artifacts (regenerate via scripts, or use Git LFS) ---
-backend/ml/data/*.csv
-backend/ml/models/*.pkl
+ml/data/*.csv
+ml/models/*.pkl
 
 # --- Node / frontend ---
 node_modules/

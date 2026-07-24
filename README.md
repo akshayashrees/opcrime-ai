@@ -1,82 +1,168 @@
-# OpCrime AI — Predictive Crime & Emergency Response Platform
+# OpCrime AI: Opportunity-Driven Crime Intelligence & Prevention System
 
-A role-based safe-city platform (Citizen / Police / Municipal / Emergency) combining an
-XGBoost-based crime risk prediction engine with a real-time FastAPI + React application:
-JWT auth, RBAC, GPS tracking, heatmaps, and emergency SOS routing.
+A production-level full-stack system that predicts opportunity-driven crimes using ML models and provides role-based dashboards with real-time insights, simulation, and safe routing.
 
-## Stack
-- **Backend:** FastAPI, SQLAlchemy, PostgreSQL (SQLite for local dev), JWT/OAuth2
-- **ML:** XGBoost (risk scoring), Random Forest (crime-type classification), KMeans (hotspot clustering), scikit-learn
-- **Frontend:** React, React Router, Leaflet/React-Leaflet (maps), Framer Motion, Axios
+## Architecture
 
-## Project structure
 ```
-backend/
-  app/            # FastAPI app: main, config, database, schemas
-  db/             # schema.sql + seed.py
-  ml/             # generate_dataset.py, trained models, metrics
-frontend/
-  src/
-    pages/        # Login, Register, role dashboards
-    components/   # CrimeMap, ScoreGauge, StatCard, Navbar, Sidebar, DashboardLayout
-    services/     # api.js (axios client), auth.js (auth context)
-    utils/        # citizenBus.js (cross-tab event bus), localityData.js
+opcrime-ai/
+├── ml/                          # Machine Learning Module
+│   ├── generate_dataset.py      # Synthetic dataset generator (30K rows, Tamil Nadu)
+│   ├── train_models.py          # ML training pipeline (XGBoost, RF, KMeans)
+│   ├── predict.py               # Prediction & explanation functions
+│   ├── safe_route.py            # Dijkstra-based safe route algorithm
+│   ├── data/                    # Generated datasets
+│   └── models/                  # Trained model files (.pkl)
+├── backend/                     # FastAPI Backend
+│   ├── app/
+│   │   ├── main.py              # App entry point
+│   │   ├── config.py            # Settings & env vars
+│   │   ├── database.py          # SQLAlchemy setup
+│   │   ├── schemas.py           # Pydantic models
+│   │   ├── models/              # SQLAlchemy ORM models
+│   │   ├── routers/             # API route handlers
+│   │   └── services/            # Business logic layer
+│   └── requirements.txt
+├── frontend/                    # React Frontend
+│   ├── public/
+│   ├── src/
+│   │   ├── components/          # Reusable UI components
+│   │   │   ├── common/          # Navbar, Sidebar, Map, Gauge, Cards
+│   │   │   └── [role]/          # Role-specific components
+│   │   ├── pages/               # Dashboard pages per role
+│   │   ├── services/            # API client & auth context
+│   │   ├── styles/              # Cinematic dark-themed CSS
+│   │   └── utils/
+│   └── package.json
+└── database/                    # Database
+    ├── schema.sql               # PostgreSQL schema
+    ├── seed.py                  # Data seeder (bulk: users + locations from dataset)
+    └── create_user.py           # Standalone utility: create individual demo users
 ```
 
-## Setup
+## Tech Stack
 
-### Backend
+| Layer | Technology |
+|-------|-----------|
+| Frontend | React, Leaflet.js, Recharts, Framer Motion |
+| Backend | FastAPI, SQLAlchemy, JWT Auth |
+| Database | PostgreSQL |
+| ML | XGBoost, Scikit-learn, Pandas, NumPy |
+
+## Setup & Run
+
+### Prerequisites
+- Python 3.9+
+- Node.js 16+
+- PostgreSQL 13+
+
+### Step 1: Generate Dataset & Train Models
+
 ```bash
-cd backend
-python -m venv venv
-source venv/bin/activate   # Windows: venv\Scripts\activate
+cd ml
 pip install -r requirements.txt
-
-# Default DB is local SQLite; set DATABASE_URL for Postgres, e.g.
-# export DATABASE_URL=postgresql://user:pass@localhost:5432/opcrime_ai
-# export SECRET_KEY=<your-own-random-secret>
-
-python run.py
+python generate_dataset.py
+python train_models.py
 ```
-API runs at `http://localhost:8001`.
 
-### Database
-The trained model files and dataset (`backend/ml/models/*.pkl`, `backend/ml/data/*.csv`) are **not
-committed to this repo** — they're either large (one model file is ~99MB, over GitHub's
-100MB limit) or regeneratable. To rebuild them locally:
+### Step 2: Setup Database
+
+```bash
+# Create PostgreSQL database
+psql -U postgres -f database/schema.sql
+
+# Or use the Python seeder (also creates tables via SQLAlchemy)
+cd database
+python seed.py
+```
+
+### Step 3: Start Backend
+
 ```bash
 cd backend
-python ml/generate_dataset.py     # regenerates backend/ml/data/crime_dataset.csv
-python ml/train_models.py         # trains XGBoost regressor, RF classifier, KMeans; saves to ml/models/
-python db/seed.py                 # creates tables + seeds default users + locations
+pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8000
 ```
 
-### Frontend
+API docs available at: http://localhost:8000/docs
+
+### Step 4: Start Frontend
+
 ```bash
 cd frontend
 npm install
 npm start
 ```
-Runs at `http://localhost:3000`, proxying API calls to `http://localhost:8001`.
+
+App runs at: http://localhost:3000
+
+## Default Login Credentials
+
+| Role | Email | Password |
+|------|-------|----------|
+| Citizen | citizen@opcrime.ai | citizen123 |
+| Police | police@opcrime.ai | police123 |
+| Municipal | municipal@opcrime.ai | municipal123 |
+| Emergency | emergency@opcrime.ai | emergency123 |
+| Planner | planner@opcrime.ai | planner123 |
+| NGO | ngo@opcrime.ai | ngo123 |
+
+## ML Models
+
+| Model | Algorithm | Output | Metric |
+|-------|-----------|--------|--------|
+| OpCrime Score | XGBoost Regressor | Score 0-100 | RMSE, R² |
+| Crime Type | Random Forest Classifier | Crime category | Accuracy, F1 |
+| Hotspots | KMeans Clustering | Cluster ID | Silhouette Score |
+
+## API Endpoints
+
+### Auth
+- `POST /api/auth/register` - Register new user
+- `POST /api/auth/login` - Login, returns JWT
+- `GET /api/auth/me` - Current user info
+
+### Predictions
+- `GET /api/predictions/score` - Get OpCrime score
+- `GET /api/predictions/crime-type` - Predict crime type
+- `GET /api/predictions/explain` - Feature importance
+- `POST /api/predictions/simulate` - What-if simulation
+
+### Map Data
+- `GET /api/map/heatmap/{city}` - Heatmap data points
+- `GET /api/map/hotspots/{city}` - Clustered hotspots
+- `GET /api/map/safe-route` - Safe route waypoints
+
+### Role-Specific
+- `GET/POST /api/citizen/*` - Citizen endpoints
+- `GET/POST/PUT /api/police/*` - Police endpoints
+- `GET/POST /api/municipal/*` - Municipal endpoints
+- `GET/PUT /api/emergency/*` - Emergency endpoints
+
+## Features
+
+- **Role-based dashboards** with cinematic dark UI
+- **Interactive crime heatmaps** with Leaflet.js
+- **What-if simulation** - adjust lighting/CCTV/patrol and see score changes
+- **Safe route generation** - Dijkstra algorithm weighted by crime scores
+- **Emergency alert system** - one-tap emergency with location
+- **Women/Children safety mode** - safe routes + auto police notification
+- **Budget estimation** - cost analysis for crime reduction interventions
+- **Feature importance** - explainable AI showing why an area is risky
+
+## Note on this repo
+
+`ml/data/*.csv` and `ml/models/*.pkl` are **not committed** — one model file is ~99MB
+(over GitHub's 100MB hard limit) and the rest are regeneratable via the two commands
+in Step 1 above. Run those locally before starting the backend.
+
+The demo credentials table above is intentional for local development and portfolio
+review. If you ever deploy this publicly, gate it behind an environment flag before
+sharing the live link, since anyone with those credentials can log in as any role
+(including police/municipal/emergency).
 
 ## Known gaps / TODO
-- `backend/app/models.py` (SQLAlchemy models) — not yet added to this repo
-- `backend/app/routers/` (auth, predictions, map_data, citizen, police, municipal, emergency) — not yet added
-- `backend/app/services/auth_service.py` — not yet added
+- `backend/app/models/` (SQLAlchemy ORM models) — not yet in this repo
+- `backend/app/routers/` (auth, predictions, map_data, citizen, police, municipal, emergency) — not yet in this repo
+- `backend/app/services/` (e.g. `auth_service.py`) — not yet in this repo
 - A native Android build exists via Capacitor but is maintained as a separate project and isn't included here
-
-## ML module
-- `ml/generate_dataset.py` — synthesizes the training dataset
-- `ml/train_models.py` — trains and saves the XGBoost regressor, Random Forest classifier, and KMeans hotspot model
-- `ml/predict.py` — loads trained models and exposes scoring/classification/explanation functions used by the API
-- `ml/safe_route.py` — Dijkstra-based routing over a crime-score-weighted grid, used for the "safe route" feature
-
-## Note on demo credentials
-The login screen currently displays demo account credentials directly in the UI
-(citizen / police / municipal / emergency, shared test password). This is fine for local
-development and portfolio demos, but if you deploy this publicly, anyone can log in as
-any role. Gate this behind an environment flag (e.g. `SHOW_DEMO_CREDS=false` in production)
-before sharing a live deployment link.
-
-## License
-Add a license of your choice (MIT is common for portfolio projects) — none included yet.
